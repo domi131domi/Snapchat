@@ -5,6 +5,8 @@
 #include <sys/msg.h>
 #include <iostream>
 #include <stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
 
 using namespace cv;
 using namespace std;
@@ -16,8 +18,12 @@ struct mesg_buffer {
 
 int main( int argc, char** argv ) {
 
+    std::cout<<"Tworze dziecko:"<<std::endl;
+    char* prog = (char*)"./dziecko";
+    char *args[]={prog,NULL};
+    execv(args[0],args);
 
-
+    cout<<"Rodzic zwija"<<std::endl;
     return 0;
 }
 
