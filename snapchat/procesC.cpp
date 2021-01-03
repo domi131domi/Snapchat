@@ -6,9 +6,9 @@ using namespace std;
 
 int main( int argc, char** argv ) {
 
-    std::cout<<"Jestę dzieckię"<<std::endl;
+    std::cout<<"ProcesC rozp"<<std::endl;
 
-    std::cout<<"Dziecko zwija"<<std::endl;
+    std::cout<<"ProcesC zak"<<std::endl;
 
     return 0;
 }
