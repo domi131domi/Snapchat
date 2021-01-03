@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include <sys/shm.h>
 #include "defines.h"
 
 using namespace std;
@@ -20,9 +21,22 @@ int main( int argc, char** argv ) {
         exit(1);
     }
 
-    mesg_buffer msg;
+    //podpiecie sie do pamieci dzielonej
+    key_t key_M = ftok(KEYM,65);
+
+    int shmid = shmget(key_M,sizeof(memory),PERMS);
+    if (shmid == -1) {
+      perror("Nie udalo sie podlaczyc do pamieci dzielonej");
+      exit(1);
+   }
+
+    memory *str = (memory*) shmat(shmid,NULL,0);
+    str->data = 9;
+    shmdt(str);
+
+    msg_buffer msg;
     msg.mesg_type = 1;
-    msg.data = 'G';
+    msg.data = 'Z';
 
     msgsnd(msgid, &msg, sizeof(msg), 0);
     std::cout << "wiadomosc wyslana:" << msg.data << std::endl;

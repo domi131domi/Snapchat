@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/shm.h>
 #include "defines.h"
 
 using namespace cv;
@@ -16,14 +17,23 @@ using namespace std;
 int main( int argc, char** argv ) {
 
     //Tworzenie kolejki
-    key_t key = ftok(KEYQ, 65);
+    key_t key_Q = ftok(KEYQ, 65);
 
-    int msgid = msgget(key, 0666 | IPC_CREAT);
+    int msgid = msgget(key_Q, 0666 | IPC_CREAT);
     if(msgid == -1)
     {
         std::cout << "Nie udalo sie utworzyc kolejki" << std::endl;
         exit(1);
     }
+
+    //Tworzenie pamieci dzielonej
+    key_t key_M = ftok(KEYM,65);
+
+    int shmid = shmget(key_M,sizeof(memory),PERMS | IPC_CREAT);
+    if (shmid == -1) {
+      perror("Nie udalo sie utworzyc pamieci dzielonej");
+      exit(1);
+   }
 
     //Tworzenie procesow
     char* prog;
@@ -83,6 +93,9 @@ int main( int argc, char** argv ) {
 
     //usuniecie kolejki
     msgctl(msgid, IPC_RMID, NULL);
+    //usuniecie pamieci dzielonej
+    shmctl(shmid,IPC_RMID,NULL);
+
     return 0;
 }
 
