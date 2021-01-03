@@ -5,9 +5,9 @@
 #include <sys/msg.h>
 #include <iostream>
 #include <stdio.h>
-#include<stdlib.h>
-#include<unistd.h>
-#include<sys/wait.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
 #include "defines.h"
 
 using namespace cv;
@@ -21,7 +21,7 @@ int main( int argc, char** argv ) {
     int msgid = msgget(key, 0666 | IPC_CREAT);
     if(msgid == -1)
     {
-        perror("Nie udalo sie utworzyc kolejki");
+        std::cout << "Nie udalo sie utworzyc kolejki" << std::endl;
         exit(1);
     }
 
@@ -81,6 +81,8 @@ int main( int argc, char** argv ) {
 
     while (wait(NULL) > 0);
 
+    //usuniecie kolejki
+    msgctl(msgid, IPC_RMID, NULL);
     return 0;
 }
 
