@@ -12,7 +12,7 @@
 #include "defines.h"
 
 using namespace std;
-
+void mirror_line(memory* str);
 
 int main( int argc, char** argv ) {
 
@@ -39,16 +39,30 @@ int main( int argc, char** argv ) {
    msg_buffer msg;
    memory* str = (memory*) shmat(shmid,NULL,0);
 
-while(true)
-{
-   msg.data = 'A';
-   while(msg.data != 'Z')
+   while(true)
    {
-       msgrcv(msgid, &msg, sizeof(msg), 5, 0);
+
+       wait_for_signal(msgid, AtoB,'Z');
+       wait_for_signal(msgid, CtoB,'Z');
+
+       mirror_line(str);
+
+       send_signal(msgid,BtoA,'Z');
+       send_signal(msgid,BtoC,'Z');
+
+       if(check_if_exit(msgid,CLOSE_ALL))
+       {
+           send_signal(msgid,CLOSE_A,'Z');
+           send_signal(msgid,CLOSE_C,'Z');
+           break;
+       }
    }
+    return 0;
+}
 
 
-
+void mirror_line(memory* str)
+{
     cv::Mat image;
     image.create(H,W,CV_8UC3);
 
@@ -71,14 +85,4 @@ while(true)
             //str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2];    // R
         }
     }
-
-
-    msg.mesg_type = 6;
-    msg.data = 'Z';
-
-    msgsnd(msgid, &msg, sizeof(msg), 0);
-
-
-}
-    return 0;
 }

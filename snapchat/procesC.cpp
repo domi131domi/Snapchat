@@ -44,39 +44,29 @@ int main( int argc, char** argv ) {
    uint8_t* pixelPtr = (uint8_t*)image.data;
    memory* str = (memory*) shmat(shmid,NULL,0);
 
-  while(true)
-  {
-
-   msg.data = 'A';
-   while(msg.data != 'Z')
+   while(true)
    {
-       msgrcv(msgid, &msg, sizeof(msg), 6, 0);
-   }
+       send_signal(msgid,CtoB,'Z');
+       if(check_if_exit(msgid,CLOSE_C))
+       {
+           break;
+       }
+       wait_for_signal(msgid,BtoC,'Z');
 
-    for(int i = 0; i < image.rows; i++)
-    {
-        for(int j = 0; j < image.cols; j++)
-        {
-            pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 0] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0];    // B
-            pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 1] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1];    // G
-            pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 2] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2];    // R
+       for(int i = 0; i < image.rows; i++)
+       {
+           for(int j = 0; j < image.cols; j++)
+            {
+                pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 0] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0];    // B
+                pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 1] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1];    // G
+                pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 2] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2];    // R
 
+            }
         }
+
+        cv::imshow("Snapchat", image);
+        cv::waitKey(10);
     }
-
-    //shmdt(str);
-
-    msg.mesg_type = 4;
-    msg.data = 'Z';
-
-
-    msgsnd(msgid, &msg, sizeof(msg), 0);
-
-
-    cv::imshow("Snapchat", image);
-    cv::waitKey(10);
-}
-
 
     cv::destroyAllWindows();
     return 0;

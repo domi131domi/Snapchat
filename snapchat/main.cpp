@@ -10,6 +10,7 @@
 #include <sys/wait.h>
 #include <sys/shm.h>
 #include "defines.h"
+#include <string>
 
 using namespace cv;
 using namespace std;
@@ -88,7 +89,14 @@ int main( int argc, char** argv ) {
         std::cout << "Wystapil blad przy tworzeniu procesu C" << std::endl;
     }
 
+    std::string command = "";
+    std::cout << "Komendy:" << std::endl << " q - zamknij program" << std::endl;
+    while(command != "q")
+    {
+        std::cin >> command;
+    }
 
+    send_signal(msgid,CLOSE_ALL,'Z');
     while (wait(NULL) > 0);
 
     //usuniecie kolejki
@@ -98,58 +106,3 @@ int main( int argc, char** argv ) {
 
     return 0;
 }
-
-
-
-/*
-std::cout<<"Tworze dziecko:"<<std::endl;
-char* prog = (char*)"./dziecko";
-char *args[]={prog,NULL};
-
-pid_t child_pid,wpid;
-int status = 0;
-
-child_pid = fork();
-
-if(child_pid == 0)    //dziecko
-{
-    execv(args[0],args);
-
-    exit(1);
-}
-else if(child_pid == -1)
-{
-    std::cout << "Wystapil blad tworzenia dziecka." << std::endl;
-}
-else
-{
-    std::cout << "siema jestem rodzicem" << std::endl;
-}
-
-cout<<"Czekam na dzieci"<<std::endl;
-while (wait(NULL) > 0);
-cout<<"Rodzic zwija"<<std::endl;
-*/
-/*    cv::Mat image;
-
-VideoCapture cap(0);
-if(!cap.isOpened())
-return -1;
-
-int key;
-//exit aby wyjsc
-while(key != 27)
-{
-    cap >> image;
-
-    if( !image.data ) {
-        std::cout <<  "Could not load camera view." << std::endl ;
-        return -1;
-    }
-
-    cv::imshow("Snapchat", image);
-    key = waitKey(10);
-}
-
-destroyAllWindows();
-*/

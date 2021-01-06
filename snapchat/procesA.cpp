@@ -39,7 +39,6 @@ int main( int argc, char** argv ) {
     memory *str = (memory*) shmat(shmid,NULL,0);
 
     cv::Mat image;
-
     image.create(H,W,CV_8UC3);
 
     cv::VideoCapture cap(0);
@@ -58,48 +57,33 @@ int main( int argc, char** argv ) {
         exit(1);
     }
 
-    if( !image.data ) {
-        std::cout <<  "Nie udalo sie zapisac obrazu z kamery." << std::endl ;
-        exit(1);
-    }
-
     uint8_t* pixelPtr;
     msg_buffer msg;
 
     while(true)
     {
 
-        if(!cap.isOpened())
+        cap.read(image);
+
+        pixelPtr = (uint8_t*)image.data;
+
+        for(int i = 0; i < image.rows; i++)
         {
-            perror("Nie udalo sie znalezc kamery.");
+            for(int j = 0; j < image.cols; j++)
+            {
+                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0] = pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 0]; // B
+                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1] = pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 1]; // G
+                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2] = pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 2]; // R
+
+            }
         }
-    cap.read(image);
-
-    pixelPtr = (uint8_t*)image.data;
-
-    for(int i = 0; i < image.rows; i++)
-    {
-        for(int j = 0; j < image.cols; j++)
+        send_signal(msgid,AtoB,'Z');
+        if(check_if_exit(msgid,CLOSE_A))
         {
-            str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0] = pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 0]; // B
-            str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1] = pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 1]; // G
-            str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2] = pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 2]; // R
-
+            break;
         }
-    }
+        wait_for_signal(msgid,BtoA,'Z');
 
-
-
-    msg.mesg_type = 5;
-    msg.data = 'Z';
-
-    msgsnd(msgid, &msg, sizeof(msg), 0);
-
-    msg.data = 'A';
-    while(msg.data != 'Z')
-    {
-        msgrcv(msgid, &msg, sizeof(msg), 4, 0);
-    }
     }
 
     return 0;
