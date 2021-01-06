@@ -1,14 +1,83 @@
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/videoio/videoio.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <sys/ipc.h>
+#include <sys/msg.h>
 #include <iostream>
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/shm.h>
+#include "defines.h"
 
 using namespace std;
 
 
 int main( int argc, char** argv ) {
 
-    std::cout<<"ProcesC rozp"<<std::endl;
 
-    std::cout<<"ProcesC zak"<<std::endl;
+    //podpiecie sie do kolejki
+    key_t key = ftok(KEYQ, 65);
 
+    int msgid = msgget(key, 0666);
+    if(msgid == -1)
+    {
+        std::cout << "procesB: nie udalo sie podpiac do kolejki" << std::endl;
+        exit(1);
+    }
+
+    //podpiecie sie do pamieci dzielonej
+    key_t key_M = ftok(KEYM,65);
+
+    int shmid = shmget(key_M,sizeof(memory),PERMS);
+    if (shmid == -1) {
+      perror("procesB: Nie udalo sie podlaczyc do pamieci dzielonej");
+      exit(1);
+   }
+
+   msg_buffer msg;
+
+   cv::Mat image;
+   image.create(H,W,CV_8UC3);
+
+   uint8_t* pixelPtr = (uint8_t*)image.data;
+   memory* str = (memory*) shmat(shmid,NULL,0);
+
+  while(true)
+  {
+
+   msg.data = 'A';
+   while(msg.data != 'Z')
+   {
+       msgrcv(msgid, &msg, sizeof(msg), 6, 0);
+   }
+
+    for(int i = 0; i < image.rows; i++)
+    {
+        for(int j = 0; j < image.cols; j++)
+        {
+            pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 0] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0];    // B
+            pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 1] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1];    // G
+            pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 2] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2];    // R
+
+        }
+    }
+
+    //shmdt(str);
+
+    msg.mesg_type = 4;
+    msg.data = 'Z';
+
+
+    msgsnd(msgid, &msg, sizeof(msg), 0);
+
+
+    cv::imshow("Snapchat", image);
+    cv::waitKey(10);
+}
+
+
+    cv::destroyAllWindows();
     return 0;
 }
