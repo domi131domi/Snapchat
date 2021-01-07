@@ -80,7 +80,9 @@ int main( int argc, char** argv ) {
         prog = (char*)"./procesC";
         args[0] = prog;
         args[1] = NULL;
-        execv(args[0],args);
+        execl("/usr/bin/xterm", "xterm", "-e", prog, NULL);
+        //cout << "Hello" << endl;
+        //execv(args[0],args);
 
         exit(1);
     }

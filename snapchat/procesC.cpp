@@ -10,12 +10,12 @@
 #include <sys/wait.h>
 #include <sys/shm.h>
 #include "defines.h"
+#include <fstream>
 
 using namespace std;
 
 
 int main( int argc, char** argv ) {
-
 
     //podpiecie sie do kolejki
     key_t key = ftok(KEYQ, 65);
@@ -43,7 +43,6 @@ int main( int argc, char** argv ) {
 
    uint8_t* pixelPtr = (uint8_t*)image.data;
    memory* str = (memory*) shmat(shmid,NULL,0);
-
    while(true)
    {
        send_signal(msgid,CtoB,'Z');
