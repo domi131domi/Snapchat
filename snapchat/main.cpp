@@ -80,7 +80,7 @@ int main( int argc, char** argv ) {
         prog = (char*)"./procesC";
         args[0] = prog;
         args[1] = NULL;
-        execl("/usr/bin/xterm", "xterm", "-e", prog, NULL);
+        execl("/usr/bin/gnome-terminal", "gnome-terminal", "--", prog, NULL);
         //cout << "Hello" << endl;
         //execv(args[0],args);
 
