@@ -26,6 +26,55 @@ void my_mouse_callback( int event, int x, int y, int flags, void* param ) {
        mouseY = y;
        new_pos = true;
    }
+   if(option == 7 && event==CV_EVENT_LBUTTONDOWN)
+   {
+       option = 20;
+       new_option = true;
+   }
+   if(option == 20 )
+   {
+       mouseX = x;
+       mouseY = y;
+       new_pos = true;
+       if(event==CV_EVENT_LBUTTONUP)
+       {
+          option = 7;
+          new_option = true;
+       }
+   }
+   if(option == 8 && event==CV_EVENT_LBUTTONDOWN)
+   {
+       option = 21;
+       new_option = true;
+   }
+   if(option == 21 )
+   {
+       mouseX = x;
+       mouseY = y;
+       new_pos = true;
+       if(event==CV_EVENT_LBUTTONUP)
+       {
+          option = 8;
+          new_option = true;
+       }
+   }
+   if(option == 9 && event==CV_EVENT_LBUTTONDOWN)
+   {
+       option = 22;
+       new_option = true;
+   }
+   if(option == 22 )
+   {
+       mouseX = x;
+       mouseY = y;
+       new_pos = true;
+       if(event==CV_EVENT_LBUTTONUP)
+       {
+          option = 9;
+          new_option = true;
+       }
+   }
+
 }
 
 void load_option()
@@ -39,7 +88,6 @@ void load_option()
         std::cout << ">";
         std::cin >> option;
         new_option = true;
-        std::cout << new_option << std::endl;
     }
 }
 

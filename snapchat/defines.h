@@ -14,6 +14,7 @@
 #define BtoC 4
 #define LICZBA_BLOKOW 1
 #define OPTION 20
+#define MAX_SKALA_KOLOR 255
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/videoio/videoio.hpp>
@@ -34,8 +35,6 @@ struct mouse_pos
 
 struct memory
 {
-    //int n;
-    //cv::Mat picture;
     uint8_t picture[W*H*CHANNELS];
 };
 
