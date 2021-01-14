@@ -85,6 +85,5 @@ int main( int argc, char** argv ) {
         wait_for_signal(msgid,BtoA,'Z');
 
     }
-
     return 0;
 }

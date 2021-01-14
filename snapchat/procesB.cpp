@@ -10,9 +10,17 @@
 #include <sys/wait.h>
 #include <sys/shm.h>
 #include "defines.h"
+#include <algorithm>
+#include <vector>
 
 using namespace std;
-void mirror_line(memory* str);
+void mirror_line(memory*, int, int);
+void mirror_line_y(memory*, int, int);
+void mirror_line_x(memory*, int, int);
+void black_white(memory* str);
+void color_saturation (memory* str, int precentage, char color);
+std::vector<int> options;
+
 
 int main( int argc, char** argv ) {
 
@@ -38,6 +46,10 @@ int main( int argc, char** argv ) {
 
    msg_buffer msg;
    memory* str = (memory*) shmat(shmid,NULL,0);
+   mouse_pos mouse, mouse_msg;
+   mouse.x = W/2;
+   mouse.y = H/2;
+   int option,s;
 
    while(true)
    {
@@ -45,7 +57,37 @@ int main( int argc, char** argv ) {
        wait_for_signal(msgid, AtoB,'Z');
        wait_for_signal(msgid, CtoB,'Z');
 
-       mirror_line(str);
+
+       if(msgrcv(msgid, &mouse_msg, sizeof(mouse_msg), MOUSE_POS, IPC_NOWAIT) >= 0)
+       {
+           std::cout << options.size() << std::endl;
+           mouse.x = mouse_msg.x;
+           mouse.y = mouse_msg.y;
+       }
+       if(msgrcv(msgid, &msg, sizeof(msg), OPTION, IPC_NOWAIT) >= 0)
+       {
+           option = (int) msg.data;
+           if(option == 0)
+                options.clear();
+            else
+                options.push_back(option);
+
+           std::cout << std::endl;
+           mouse.x = W/2;
+           mouse.y = H/2;
+       }
+
+       for(int opt : options)
+       {
+           if(opt == 2)
+            mirror_line_x(str, mouse.x, mouse.y);
+           else if(opt == 1)
+            mirror_line_y(str, mouse.x, mouse.y);
+           else if(opt == 3)
+            black_white(str);
+            else if(opt == 4)
+                color_saturation(str,200,'R');
+       }
 
        send_signal(msgid,BtoA,'Z');
        send_signal(msgid,BtoC,'Z');
@@ -56,33 +98,125 @@ int main( int argc, char** argv ) {
            send_signal(msgid,CLOSE_C,'Z');
            break;
        }
+
    }
     return 0;
 }
 
+void mirror_line_y(memory* str, int x_pos, int y_pos)
+{
+    cv::Mat image;
+    image.create(H,W,CV_8UC3);
 
-void mirror_line(memory* str)
+    uint8_t* pixelPtr = (uint8_t*)image.data;
+    int new_y = 0;
+    int i, end;
+
+    if( y_pos >= image.rows/2 ){
+        i = y_pos;
+        end = image.rows;
+    }
+    else{
+        i = 0;
+        end = y_pos;
+    }
+    for( ; i < end; i++)
+    {
+        for(int j = 0; j < image.cols; j++)
+        {
+            new_y = 2 * y_pos - i;
+
+            if( new_y < image.rows && new_y >= 0 ){
+                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0] = str->picture[new_y*image.cols*CHANNELS + j*CHANNELS + 0] ;
+                 str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1] = str->picture[new_y*image.cols*CHANNELS + j*CHANNELS + 1]; // G
+                 str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2] = str->picture[new_y*image.cols*CHANNELS + j*CHANNELS + 2];
+            }
+
+        }
+    }
+}
+
+
+void mirror_line_x(memory* str, int x_pos, int y_pos)
+{
+    cv::Mat image;
+    image.create(H,W,CV_8UC3);
+
+    uint8_t* pixelPtr = (uint8_t*)image.data;
+    int new_x = 0;
+    int start, end;
+
+    if( x_pos >= image.cols/2 ){
+        start = x_pos;
+        end = image.cols;
+    }
+    else{
+        start = 0;
+        end = x_pos;
+    }
+
+    for(int i = 0; i < image.rows; i++)
+    {
+        for(int j=start ; j < end; j++)
+        {
+            new_x = 2 * x_pos - j;
+
+            if( new_x < image.cols && new_x >= 0 ){
+                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0] = str->picture[i*image.cols*CHANNELS + new_x*CHANNELS + 0];
+                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1] = str->picture[i*image.cols*CHANNELS + new_x*CHANNELS + 1];  // G
+                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2] = str->picture[i*image.cols*CHANNELS + new_x*CHANNELS + 2];
+            }
+        }
+
+    }
+}
+
+void black_white(memory* str)
+{
+    cv::Mat image;
+    image.create(H,W,CV_8UC3);
+
+    uint8_t* pixelPtr = (uint8_t*)image.data;
+    uint8_t grey;
+
+    for(int i = 0; i < image.rows; i++)
+    {
+        for(int j = 0; j < image.cols; j++)
+        {
+            grey = 0.11 * str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0] + 0.59 * str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1] + 0.3 * str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2];
+            str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0] = grey;
+            str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1] = grey;
+            str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2] = grey;
+        }
+    }
+}
+
+
+uint8_t less_than_255 ( uint8_t color ){
+    if (color > 255)
+        return 255;
+    else return color;
+}
+
+void color_saturation (memory* str, int precentage, char color)
 {
     cv::Mat image;
     image.create(H,W,CV_8UC3);
 
     uint8_t* pixelPtr = (uint8_t*)image.data;
 
-
-    //ADAM TUTAJ SIE MODYFIKUJE OBRAZ
     for(int i = 0; i < image.rows; i++)
     {
-        for(int j = 0; j < image.cols; j++)
+        for( int j = 0; j < image.cols; j++)
         {
-            // OBRAZ ZAPIYWANY                                                                  OBRAZ ODCZYTYWANY
-            str->picture[i*image.cols*CHANNELS + (image.cols - j-1)*CHANNELS + 0] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0];    // B
-            str->picture[i*image.cols*CHANNELS + (image.cols - j-1)*CHANNELS + 1] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1];    // G
-            str->picture[i*image.cols*CHANNELS + (image.cols - j-1)*CHANNELS + 2] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2];    // R
+            if(color == 'B')
+                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0] = less_than_255(str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0] * (float)precentage/100);
+            else if (color == 'G')
+                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1] = less_than_255(str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1] * (float)precentage/100);  // G
+            else if (color == 'R')
+                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2] = less_than_255((uint8_t)(str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2] + (float)precentage));
 
-            // jak zrobisz to na dole to bedzie zwykly obraz, (ale w odbiciu, nwm czemu ale to tak jest po prostu)
-            //str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0];    // B
-            //str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1];    // G
-            //str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2];    // R
+                //less_than_255((uint8_t)(str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2] + (float)precentage/100))
         }
     }
 }

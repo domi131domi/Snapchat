@@ -11,8 +11,37 @@
 #include <sys/shm.h>
 #include "defines.h"
 #include <fstream>
+#include <thread>
+#include <cstdlib>
 
 using namespace std;
+
+int mouseX = W/2, mouseY = H/2;
+bool new_pos = false, new_option = false, working = true;
+int option = 0;
+
+void my_mouse_callback( int event, int x, int y, int flags, void* param ) {
+    if(event==CV_EVENT_LBUTTONDOWN){
+       mouseX = x;
+       mouseY = y;
+       new_pos = true;
+   }
+}
+
+void load_option()
+{
+    std::cout << "Wybierz opcje:" << std::endl;
+    std::cout << "0. Brak filtra" << std::endl;
+    std::cout << "1. Odbicie w poziomie" << std::endl;
+    std::cout << "2. Odbicie w pionie" << std::endl;
+    while(working)
+    {
+        std::cout << ">";
+        std::cin >> option;
+        new_option = true;
+        std::cout << new_option << std::endl;
+    }
+}
 
 
 int main( int argc, char** argv ) {
@@ -40,17 +69,42 @@ int main( int argc, char** argv ) {
 
    cv::Mat image;
    image.create(H,W,CV_8UC3);
+   cv::namedWindow("Snapchat");
+   setMouseCallback( "Snapchat", my_mouse_callback, &image );
+   thread loadThread(load_option);
 
    uint8_t* pixelPtr = (uint8_t*)image.data;
    memory* str = (memory*) shmat(shmid,NULL,0);
-   while(true)
+   while(working)
    {
+       //wyslanie pozycji myszy
+       if(new_pos)
+       {
+           mouse_pos msg;
+           msg.mesg_type = MOUSE_POS;
+           msg.x = mouseX;
+           msg.y = mouseY;
+           msgsnd(msgid, &msg, sizeof(msg), 0);
+           new_pos = false;
+       }
+
+      if(new_option)
+      {
+          msg_buffer msg;
+          msg.mesg_type = OPTION;
+          msg.data = option;
+          msgsnd(msgid, &msg, sizeof(msg), 0);
+          new_option = false;
+      }
+
        send_signal(msgid,CtoB,'Z');
        if(check_if_exit(msgid,CLOSE_C))
        {
-           break;
+           working = false;
        }
-       wait_for_signal(msgid,BtoC,'Z');
+       if(working)
+       {
+        wait_for_signal(msgid,BtoC,'Z');
 
        for(int i = 0; i < image.rows; i++)
        {
@@ -62,9 +116,9 @@ int main( int argc, char** argv ) {
 
             }
         }
-
         cv::imshow("Snapchat", image);
         cv::waitKey(10);
+        }
     }
 
     cv::destroyAllWindows();

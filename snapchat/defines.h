@@ -7,10 +7,13 @@
 #define CLOSE_ALL 15
 #define CLOSE_A 16
 #define CLOSE_C 17
+#define MOUSE_POS 19
 #define AtoB 1
 #define BtoA 2
 #define CtoB 3
 #define BtoC 4
+#define LICZBA_BLOKOW 1
+#define OPTION 20
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/videoio/videoio.hpp>
@@ -20,6 +23,13 @@ struct msg_buffer
 {
     long mesg_type;
     char data;
+};
+
+struct mouse_pos
+{
+    long mesg_type;
+    int x;
+    int y;
 };
 
 struct memory
@@ -52,5 +62,4 @@ bool check_if_exit(int msgid, int mesg_type)
     msg_buffer msg;
     msg.data = 0;
     return (msgrcv(msgid, &msg, sizeof(msg), mesg_type, IPC_NOWAIT) >= 0);
-
 }

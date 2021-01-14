@@ -13,7 +13,7 @@ procesB: procesB.cpp
 	$(CC) -o procesB procesB.cpp $(FLAGS)
 
 procesC: procesC.cpp
-	$(CC) -o procesC procesC.cpp $(FLAGS)
+	$(CC) -o procesC procesC.cpp $(FLAGS) -pthread
 
 clean:
 	rm snap
