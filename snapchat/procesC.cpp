@@ -83,6 +83,17 @@ void load_option()
     std::cout << "0. Brak filtra" << std::endl;
     std::cout << "1. Odbicie w poziomie" << std::endl;
     std::cout << "2. Odbicie w pionie" << std::endl;
+    std::cout << "3. Obraz bialo-czarny" << std::endl;
+    std::cout << "4. Zwiekszenie barwy czerwonej" << std::endl;
+    std::cout << "5. Zwiekszenie barwy zielonej" << std::endl;
+    std::cout << "6. Zwiekszenie barwy niebieskiej" << std::endl;
+    std::cout << "7. Mazak niebieski" << std::endl;
+    std::cout << "8. Mazak zielony" << std::endl;
+    std::cout << "9. Mazak czerwony" << std::endl;
+    std::cout << "10. Dodaj obrazek: smile" << std::endl;
+    std::cout << "11. Dodaj obrazek: kleks" << std::endl;
+    std::cout << "12. Dodaj obrazek: mask" << std::endl;
+    std::cout << "13. Dodaj obrazek: glasses" << std::endl;
     while(working)
     {
         std::cout << ">";

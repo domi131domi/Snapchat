@@ -20,17 +20,155 @@ void mirror_line_x(memory*, int, int);
 void black_white(memory* str);
 void color_saturation (memory* str, int precentage, char color);
 void drawMark(int x, int y, char color);
+void set_image(memory* , int , int, int );
 
 struct Option
 {
         int val;
         mouse_pos pos;
 };
+
+struct Draws
+{
+    char color;
+    mouse_pos pos;
+
+    void drawMark(memory* str)
+    {
+        if(color == 'B')
+        {
+            str->picture[(pos.y * W + pos.x)*CHANNELS + 0] = 255;
+            str->picture[(pos.y * W + pos.x)*CHANNELS + 1] = 0;
+            str->picture[(pos.y * W + pos.x)*CHANNELS + 2] = 0;
+
+            if(pos.y < H && pos.y > 0 && pos.x < W && pos.x)
+            {
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +3] = 255;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +3] = 0;
+
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -3] = 255;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -3] = 0;
+
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS] = 255;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS] = 0;
+
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS] = 255;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS] = 0;
+
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS-3] = 255;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS-3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS-3] = 0;
+
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS+3] = 255;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS+3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS+3] = 0;
+
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS+3] = 255;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS+3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS+3] = 0;
+
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS-3] = 255;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS-3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS-3] = 0;
+
+            }
+        }
+        if(color == 'G')
+        {
+            str->picture[(pos.y * W + pos.x)*CHANNELS + 0] = 0;
+            str->picture[(pos.y * W + pos.x)*CHANNELS + 1] = 255;
+            str->picture[(pos.y * W + pos.x)*CHANNELS + 2] = 0;
+
+            if(pos.y < H && pos.y > 0 && pos.x < W && pos.x)
+            {
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +3] = 255;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +3] = 0;
+
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -3] = 255;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -3] = 0;
+
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS] = 255;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS] = 0;
+
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS] = 255;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS] = 0;
+
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS-3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS-3] = 255;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS-3] = 0;
+
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS+3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS+3] = 255;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS+3] = 0;
+
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS+3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS+3] = 255;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS+3] = 0;
+
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS-3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS-3] = 255;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS-3] = 0;
+
+            }
+        }
+        if(color == 'R')
+        {
+            str->picture[(pos.y * W + pos.x)*CHANNELS + 0] = 0;
+            str->picture[(pos.y * W + pos.x)*CHANNELS + 1] = 0;
+            str->picture[(pos.y * W + pos.x)*CHANNELS + 2] = 255;
+
+            if(pos.y < H && pos.y > 0 && pos.x < W && pos.x)
+            {
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +3] = 255;
+
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -3] = 255;
+
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS] = 255;
+
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS] = 255;
+
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS-3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS-3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS-3] = 255;
+
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS+3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS+3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS+3] = 255;
+
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS+3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS+3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS+3] = 255;
+
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS-3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS-3] = 0;
+                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS-3] = 255;
+
+            }
+        }
+    }
+}; //Draws
+
+std::vector<Draws> drawing;
 std::vector<Option> options;
-uint8_t drawing[W*H*CHANNELS];
+//uint8_t drawing[W*H*CHANNELS];
 
 int main( int argc, char** argv ) {
-
 
     //podpiecie sie do kolejki
     key_t key = ftok(KEYQ, 65);
@@ -76,17 +214,43 @@ int main( int argc, char** argv ) {
                options[options.size()-1].pos.y = mouse.y;
            }
 
+           if(options[options.size()-1].val == 20)
+           {
+               Draws draws;
+               draws.color = 'B';
+               draws.pos.x = mouse.x;
+               draws.pos.y = mouse.y;
+               drawing.push_back(draws);
+               drawing_empty = false;
+           }
+           else if(options[options.size()-1].val == 21)
+           {
+               Draws draws;
+               draws.color = 'G';
+               draws.pos.x = mouse.x;
+               draws.pos.y = mouse.y;
+               drawing.push_back(draws);
+               drawing_empty = false;
+           }
+           else if(options[options.size()-1].val == 22)
+           {
+               Draws draws;
+               draws.color = 'R';
+               draws.pos.x = mouse.x;
+               draws.pos.y = mouse.y;
+               drawing.push_back(draws);
+               drawing_empty = false;
+           }
        }
+
        if(msgrcv(msgid, &msg, sizeof(msg), OPTION, IPC_NOWAIT) >= 0)
        {
            option.val = (int) msg.data;
            if(option.val == 0)
            {
                options.clear();
-               for(int e = 0; e < H*W*CHANNELS; e++)
-               {
-                   drawing[e] = 0;
-               }
+               drawing.clear();
+
                drawing_empty = true;
            }
             else
@@ -113,33 +277,27 @@ int main( int argc, char** argv ) {
                 color_saturation(str,MAX_SKALA_KOLOR - (int)(opt.pos.y / (float)H * (float)(2*MAX_SKALA_KOLOR)),'G');
             else if(opt.val == 6)
                 color_saturation(str,MAX_SKALA_KOLOR - (int)(opt.pos.y / (float)H * (float)(2*MAX_SKALA_KOLOR)),'B');
-            else if(opt.val == 20)
-            {
-                drawMark(opt.pos.x, opt.pos.y, 'B');
-                drawing_empty = false;
-            }
-            else if(opt.val == 21)
-            {
-                drawMark(opt.pos.x, opt.pos.y, 'G');
-                drawing_empty = false;
-            }
-            else if(opt.val == 22)
-            {
-                drawMark(opt.pos.x, opt.pos.y, 'R');
-                drawing_empty = false;
-            }
+            else if(opt.val == 10)
+                set_image(str, opt.pos.x, opt.pos.y, 0);
+            else if(opt.val == 11)
+                set_image(str, opt.pos.x, opt.pos.y, 1);
+            else if(opt.val == 12)
+                set_image(str, opt.pos.x, opt.pos.y, 2);
+            else if(opt.val == 13)
+                set_image(str, opt.pos.x, opt.pos.y, 3);
+
 
             if(!drawing_empty)
             {
-                for(int i = 0; i < H*W*CHANNELS; i++)
-                    if(drawing[i] != 0)
-                        str->picture[i] = drawing[i];
+
+                for( Draws d : drawing )
+                {
+                    d.drawMark(str);
+                }
 
             }
 
-
        }
-
        send_signal(msgid,BtoA,'Z');
        send_signal(msgid,BtoC,'Z');
 
@@ -149,7 +307,6 @@ int main( int argc, char** argv ) {
            send_signal(msgid,CLOSE_C,'Z');
            break;
        }
-
    }
     return 0;
 }
@@ -278,150 +435,37 @@ void color_saturation (memory* str, int precentage, char color)
         }
     }
 }
-
-void drawMark(int x, int y, char color)
-{
-    if(color == 'B')
-    {
-        drawing[(y * W + x)*CHANNELS + 0] = 255;
-        drawing[(y * W + x)*CHANNELS + 1] = 0;
-        drawing[(y * W + x)*CHANNELS + 2] = 0;
-
-        if(y < H && y > 0 && x < W && x)
-        {
-            drawing[(y * W + x)*CHANNELS + 0 +3] = 255;
-            drawing[(y * W + x)*CHANNELS + 1 +3] = 0;
-            drawing[(y * W + x)*CHANNELS + 2 +3] = 0;
-
-            drawing[(y * W + x)*CHANNELS + 0 -3] = 255;
-            drawing[(y * W + x)*CHANNELS + 1 -3] = 0;
-            drawing[(y * W + x)*CHANNELS + 2 -3] = 0;
-
-            drawing[(y * W + x)*CHANNELS + 0 +W*CHANNELS] = 255;
-            drawing[(y * W + x)*CHANNELS + 1 +W*CHANNELS] = 0;
-            drawing[(y * W + x)*CHANNELS + 2 +W*CHANNELS] = 0;
-
-            drawing[(y * W + x)*CHANNELS + 0 -W*CHANNELS] = 255;
-            drawing[(y * W + x)*CHANNELS + 1 -W*CHANNELS] = 0;
-            drawing[(y * W + x)*CHANNELS + 2 -W*CHANNELS] = 0;
-
-            drawing[(y * W + x)*CHANNELS + 0 +W*CHANNELS-3] = 255;
-            drawing[(y * W + x)*CHANNELS + 1 +W*CHANNELS-3] = 0;
-            drawing[(y * W + x)*CHANNELS + 2 +W*CHANNELS-3] = 0;
-
-            drawing[(y * W + x)*CHANNELS + 0 -W*CHANNELS+3] = 255;
-            drawing[(y * W + x)*CHANNELS + 1 -W*CHANNELS+3] = 0;
-            drawing[(y * W + x)*CHANNELS + 2 -W*CHANNELS+3] = 0;
-
-            drawing[(y * W + x)*CHANNELS + 0 +W*CHANNELS+3] = 255;
-            drawing[(y * W + x)*CHANNELS + 1 +W*CHANNELS+3] = 0;
-            drawing[(y * W + x)*CHANNELS + 2 +W*CHANNELS+3] = 0;
-
-            drawing[(y * W + x)*CHANNELS + 0 -W*CHANNELS-3] = 255;
-            drawing[(y * W + x)*CHANNELS + 1 -W*CHANNELS-3] = 0;
-            drawing[(y * W + x)*CHANNELS + 2 -W*CHANNELS-3] = 0;
-
-        }
-    }
-    if(color == 'G')
-    {
-        drawing[(y * W + x)*CHANNELS + 0] = 0;
-        drawing[(y * W + x)*CHANNELS + 1] = 255;
-        drawing[(y * W + x)*CHANNELS + 2] = 0;
-
-        if(y < H && y > 0 && x < W && x)
-        {
-            drawing[(y * W + x)*CHANNELS + 0 +3] = 0;
-            drawing[(y * W + x)*CHANNELS + 1 +3] = 255;
-            drawing[(y * W + x)*CHANNELS + 2 +3] = 0;
-
-            drawing[(y * W + x)*CHANNELS + 0 -3] = 0;
-            drawing[(y * W + x)*CHANNELS + 1 -3] = 255;
-            drawing[(y * W + x)*CHANNELS + 2 -3] = 0;
-
-            drawing[(y * W + x)*CHANNELS + 0 +W*CHANNELS] = 0;
-            drawing[(y * W + x)*CHANNELS + 1 +W*CHANNELS] = 255;
-            drawing[(y * W + x)*CHANNELS + 2 +W*CHANNELS] = 0;
-
-            drawing[(y * W + x)*CHANNELS + 0 -W*CHANNELS] = 0;
-            drawing[(y * W + x)*CHANNELS + 1 -W*CHANNELS] = 255;
-            drawing[(y * W + x)*CHANNELS + 2 -W*CHANNELS] = 0;
-
-            drawing[(y * W + x)*CHANNELS + 0 +W*CHANNELS-3] = 0;
-            drawing[(y * W + x)*CHANNELS + 1 +W*CHANNELS-3] = 255;
-            drawing[(y * W + x)*CHANNELS + 2 +W*CHANNELS-3] = 0;
-
-            drawing[(y * W + x)*CHANNELS + 0 -W*CHANNELS+3] = 0;
-            drawing[(y * W + x)*CHANNELS + 1 -W*CHANNELS+3] = 255;
-            drawing[(y * W + x)*CHANNELS + 2 -W*CHANNELS+3] = 0;
-
-            drawing[(y * W + x)*CHANNELS + 0 +W*CHANNELS+3] = 0;
-            drawing[(y * W + x)*CHANNELS + 1 +W*CHANNELS+3] = 255;
-            drawing[(y * W + x)*CHANNELS + 2 +W*CHANNELS+3] = 0;
-
-            drawing[(y * W + x)*CHANNELS + 0 -W*CHANNELS-3] = 0;
-            drawing[(y * W + x)*CHANNELS + 1 -W*CHANNELS-3] = 255;
-            drawing[(y * W + x)*CHANNELS + 2 -W*CHANNELS-3] = 0;
-
-        }
-    }
-    if(color == 'R')
-    {
-        drawing[(y * W + x)*CHANNELS + 0] = 0;
-        drawing[(y * W + x)*CHANNELS + 1] = 0;
-        drawing[(y * W + x)*CHANNELS + 2] = 255;
-
-        if(y < H && y > 0 && x < W && x)
-        {
-            drawing[(y * W + x)*CHANNELS + 0 +3] = 0;
-            drawing[(y * W + x)*CHANNELS + 1 +3] = 0;
-            drawing[(y * W + x)*CHANNELS + 2 +3] = 255;
-
-            drawing[(y * W + x)*CHANNELS + 0 -3] = 0;
-            drawing[(y * W + x)*CHANNELS + 1 -3] = 0;
-            drawing[(y * W + x)*CHANNELS + 2 -3] = 255;
-
-            drawing[(y * W + x)*CHANNELS + 0 +W*CHANNELS] = 0;
-            drawing[(y * W + x)*CHANNELS + 1 +W*CHANNELS] = 0;
-            drawing[(y * W + x)*CHANNELS + 2 +W*CHANNELS] = 255;
-
-            drawing[(y * W + x)*CHANNELS + 0 -W*CHANNELS] = 0;
-            drawing[(y * W + x)*CHANNELS + 1 -W*CHANNELS] = 0;
-            drawing[(y * W + x)*CHANNELS + 2 -W*CHANNELS] = 255;
-
-            drawing[(y * W + x)*CHANNELS + 0 +W*CHANNELS-3] = 0;
-            drawing[(y * W + x)*CHANNELS + 1 +W*CHANNELS-3] = 0;
-            drawing[(y * W + x)*CHANNELS + 2 +W*CHANNELS-3] = 255;
-
-            drawing[(y * W + x)*CHANNELS + 0 -W*CHANNELS+3] = 0;
-            drawing[(y * W + x)*CHANNELS + 1 -W*CHANNELS+3] = 0;
-            drawing[(y * W + x)*CHANNELS + 2 -W*CHANNELS+3] = 255;
-
-            drawing[(y * W + x)*CHANNELS + 0 +W*CHANNELS+3] = 0;
-            drawing[(y * W + x)*CHANNELS + 1 +W*CHANNELS+3] = 0;
-            drawing[(y * W + x)*CHANNELS + 2 +W*CHANNELS+3] = 255;
-
-            drawing[(y * W + x)*CHANNELS + 0 -W*CHANNELS-3] = 0;
-            drawing[(y * W + x)*CHANNELS + 1 -W*CHANNELS-3] = 0;
-            drawing[(y * W + x)*CHANNELS + 2 -W*CHANNELS-3] = 255;
-
-        }
-    }
-}
-
-void set_image(memory* str, int x_pos, int y_pos)
+void set_image(memory* str, int x_pos, int y_pos, int type)
 {
     cv::Mat image;
     image.create(H,W,CV_8UC3);
-    cv::Mat photo = imread("/mnt/d/01_STUDIA/SEM5/SCZR/projekt/repo/Snapchat/snapchat/photo.png", IMREAD_COLOR);    // 3 channels
+    cv::Mat photo;
+    if(type == 0)
+    {
+        photo = imread("smile.png", cv::IMREAD_COLOR);
+    }
+    else if(type == 1)
+    {
+        photo = imread("kleks.png", cv::IMREAD_COLOR);
+    }
+    else if(type == 2)
+    {
+        photo = imread("mask.png", cv::IMREAD_COLOR);
+    }
+    else
+    {
+        photo = imread("glasses.png", cv::IMREAD_COLOR);
+    }
 
     if(photo.empty())
     {
         std::cerr << "Could not read the image: " << std::endl;
         return;
     }
-
-    uint8_t* pixelPtr = (uint8_t*)image.data;
+    x_pos = x_pos-photo.cols/2;
+    y_pos = y_pos-photo.rows/2;
+    int chann = photo.channels();
+    uint8_t* pixelPtr = (uint8_t*)photo.data;
     int photo_y = 0, photo_x = 0;
     uint8_t pixelR, pixelG, pixelB;
     for(int i = y_pos; i < y_pos + photo.rows; i++)
@@ -429,16 +473,20 @@ void set_image(memory* str, int x_pos, int y_pos)
         photo_x = 0;
         for( int j = x_pos; j < x_pos + photo.cols; j++)
         {
-            pixelB = photo[photo_y*photo.cols*photo.channels() + photo_y*photo.channels() + 0];
-            pixelG = photo[photo_y*photo.cols*photo.channels() + photo_y*photo.channels() + 1];
-            pixelR = photo[photo_y*photo.cols*photo.channels() + photo_y*photo.channels() + 2];
-            if( !(pixelB == 255 && pixelG == 255 && pixelR == 255)){
-                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0] = pixelB;
-                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1] = pixelG;  // G
-                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2] = pixelR;
+            if(i >= 0 && i < H && j >= 0 && j < W)
+            {
+                pixelB = pixelPtr[photo_y*photo.cols*chann + photo_x*chann + 0];
+                pixelG = pixelPtr[photo_y*photo.cols*chann + photo_x*chann + 1];
+                pixelR = pixelPtr[photo_y*photo.cols*chann + photo_x*chann + 2];
+                if( !(pixelB == 255 && pixelG == 255 && pixelR == 255)){
+                    str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0] = pixelB;
+                    str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1] = pixelG;  // G
+                    str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2] = pixelR;
+                }
             }
-            ++photo_x;    
+            ++photo_x;
         }
         ++photo_y;
+
     }
 }
