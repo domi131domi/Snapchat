@@ -408,3 +408,37 @@ void drawMark(int x, int y, char color)
         }
     }
 }
+
+void set_image(memory* str, int x_pos, int y_pos)
+{
+    cv::Mat image;
+    image.create(H,W,CV_8UC3);
+    cv::Mat photo = imread("/mnt/d/01_STUDIA/SEM5/SCZR/projekt/repo/Snapchat/snapchat/photo.png", IMREAD_COLOR);    // 3 channels
+
+    if(photo.empty())
+    {
+        std::cerr << "Could not read the image: " << std::endl;
+        return;
+    }
+
+    uint8_t* pixelPtr = (uint8_t*)image.data;
+    int photo_y = 0, photo_x = 0;
+    uint8_t pixelR, pixelG, pixelB;
+    for(int i = y_pos; i < y_pos + photo.rows; i++)
+    {
+        photo_x = 0;
+        for( int j = x_pos; j < x_pos + photo.cols; j++)
+        {
+            pixelB = photo[photo_y*photo.cols*photo.channels() + photo_y*photo.channels() + 0];
+            pixelG = photo[photo_y*photo.cols*photo.channels() + photo_y*photo.channels() + 1];
+            pixelR = photo[photo_y*photo.cols*photo.channels() + photo_y*photo.channels() + 2];
+            if( !(pixelB == 255 && pixelG == 255 && pixelR == 255)){
+                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0] = pixelB;
+                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1] = pixelG;  // G
+                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2] = pixelR;
+            }
+            ++photo_x;    
+        }
+        ++photo_y;
+    }
+}
