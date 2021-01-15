@@ -1,6 +1,6 @@
 #define PERMS 0666
 #define KEYQ "ID_KOLEJKA2"
-#define KEYM "ID_PAMIEC2"
+#define KEYM "ID_PAMIEC69aaba"
 #define W 1280
 #define H 720
 #define CHANNELS 3
@@ -15,6 +15,7 @@
 #define LICZBA_BLOKOW 1
 #define OPTION 20
 #define MAX_SKALA_KOLOR 255
+#define BLOCK_SIZE 1
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/videoio/videoio.hpp>
@@ -35,7 +36,7 @@ struct mouse_pos
 
 struct memory
 {
-    uint8_t picture[W*H*CHANNELS];
+    uint8_t picture[BLOCK_SIZE][W*H*CHANNELS];
 };
 
 void send_signal(int msgid, int mesg_type, char letter)

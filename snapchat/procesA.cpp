@@ -11,11 +11,11 @@
 #include <sys/shm.h>
 #include "defines.h"
 
+
 using namespace std;
 
 
 int main( int argc, char** argv ) {
-
 
     //podpiecie sie do kolejki
     key_t key = ftok(KEYQ, 65);
@@ -62,19 +62,21 @@ int main( int argc, char** argv ) {
 
     while(true)
     {
-
-        cap.read(image);
-
-        pixelPtr = (uint8_t*)image.data;
-
-        for(int i = 0; i < image.rows; i++)
+        for(int block = 0; block < BLOCK_SIZE; block++)
         {
-            for(int j = 0; j < image.cols; j++)
-            {
-                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0] = pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 0]; // B
-                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1] = pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 1]; // G
-                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2] = pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 2]; // R
+            cap.read(image);
 
+            pixelPtr = (uint8_t*)image.data;
+
+            for(int i = 0; i < image.rows; i++)
+            {
+                for(int j = 0; j < image.cols; j++)
+                {
+                    str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 0] = pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 0]; // B
+                    str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 1] = pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 1]; // G
+                    str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 2] = pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 2]; // R
+
+                }
             }
         }
         send_signal(msgid,AtoB,'Z');

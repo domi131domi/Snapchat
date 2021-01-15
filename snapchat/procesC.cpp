@@ -102,8 +102,10 @@ void load_option()
     }
 }
 
+uint8_t temp[BLOCK_SIZE][H*W*CHANNELS];
 
 int main( int argc, char** argv ) {
+
 
     //podpiecie sie do kolejki
     key_t key = ftok(KEYQ, 65);
@@ -134,8 +136,11 @@ int main( int argc, char** argv ) {
 
    uint8_t* pixelPtr = (uint8_t*)image.data;
    memory* str = (memory*) shmat(shmid,NULL,0);
+   std::ofstream file("WynikNormal_C.txt");
+   send_signal(msgid,CtoB,'Z');
    while(working)
    {
+       auto start = std::chrono::high_resolution_clock::now();
        //wyslanie pozycji myszy
        if(new_pos)
        {
@@ -156,28 +161,48 @@ int main( int argc, char** argv ) {
           new_option = false;
       }
 
-       send_signal(msgid,CtoB,'Z');
-       if(check_if_exit(msgid,CLOSE_C))
-       {
-           working = false;
-       }
+      for(int block = 0; block < BLOCK_SIZE; block++)
+      {
        if(working)
        {
-        wait_for_signal(msgid,BtoC,'Z');
-
+       wait_for_signal(msgid,BtoC,'Z');
        for(int i = 0; i < image.rows; i++)
        {
            for(int j = 0; j < image.cols; j++)
             {
-                pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 0] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0];    // B
-                pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 1] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1];    // G
-                pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 2] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2];    // R
-
+                //pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 0] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0];    // B
+                //pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 1] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1];    // G
+                //pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 2] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2];    // R
+                temp[block][i*image.cols*CHANNELS + j*CHANNELS + 0] = str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 0];
+                temp[block][i*image.cols*CHANNELS + j*CHANNELS + 1] = str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 1];
+                temp[block][i*image.cols*CHANNELS + j*CHANNELS + 2] = str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 2];
             }
         }
-        cv::imshow("Snapchat", image);
-        cv::waitKey(10);
+        send_signal(msgid,CtoB,'Z');
+        send_signal(msgid,BtoA,'Z');
+        if(check_if_exit(msgid,CLOSE_C))
+        {
+            working = false;
         }
+        for(int block = 0; block < BLOCK_SIZE; block++)
+        {
+            for(int i = 0; i < image.rows; i++)
+            {
+                for(int j = 0; j < image.cols; j++)
+                 {
+                     pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 0] = temp[block][i*image.cols*CHANNELS + j*CHANNELS + 0];    // B
+                     pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 1] = temp[block][i*image.cols*CHANNELS + j*CHANNELS + 1];    // G
+                     pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 2] = temp[block][i*image.cols*CHANNELS + j*CHANNELS + 2];    // R
+                 }
+             }
+            cv::imshow("Snapchat", image);
+            cv::waitKey(1);
+        }
+        }
+        }
+        auto finish = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed = finish - start;
+        file << elapsed.count() << std::endl;
     }
 
     cv::destroyAllWindows();

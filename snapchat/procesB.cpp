@@ -10,17 +10,21 @@
 #include <sys/wait.h>
 #include <sys/shm.h>
 #include "defines.h"
+#include <chrono>
 #include <algorithm>
 #include <vector>
+#include <fstream>
+#include <pthread.h>
+#include <sched.h>
 
 using namespace std;
-void mirror_line(memory*, int, int);
-void mirror_line_y(memory*, int, int);
-void mirror_line_x(memory*, int, int);
-void black_white(memory* str);
-void color_saturation (memory* str, int precentage, char color);
-void drawMark(int x, int y, char color);
-void set_image(memory* , int , int, int );
+void mirror_line(memory*, int, int,int);
+void mirror_line_y(memory*, int, int,int);
+void mirror_line_x(memory*, int, int,int);
+void black_white(memory* str,int);
+void color_saturation (memory* str, int precentage, char color,int);
+void drawMark(int x, int y, char color,int);
+void set_image(memory* , int , int, int,int );
 
 struct Option
 {
@@ -33,131 +37,131 @@ struct Draws
     char color;
     mouse_pos pos;
 
-    void drawMark(memory* str)
+    void drawMark(memory* str,int block)
     {
         if(color == 'B')
         {
-            str->picture[(pos.y * W + pos.x)*CHANNELS + 0] = 255;
-            str->picture[(pos.y * W + pos.x)*CHANNELS + 1] = 0;
-            str->picture[(pos.y * W + pos.x)*CHANNELS + 2] = 0;
+            str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0] = 255;
+            str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1] = 0;
+            str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2] = 0;
 
             if(pos.y < H && pos.y > 0 && pos.x < W && pos.x)
             {
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +3] = 255;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 +3] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 +3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 +3] = 0;
 
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -3] = 255;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 -3] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 -3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 -3] = 0;
 
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS] = 255;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS] = 0;
 
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS] = 255;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS] = 0;
 
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS-3] = 255;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS-3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS-3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS-3] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS-3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS-3] = 0;
 
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS+3] = 255;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS+3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS+3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS+3] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS+3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS+3] = 0;
 
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS+3] = 255;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS+3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS+3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS+3] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS+3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS+3] = 0;
 
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS-3] = 255;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS-3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS-3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS-3] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS-3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS-3] = 0;
 
             }
         }
         if(color == 'G')
         {
-            str->picture[(pos.y * W + pos.x)*CHANNELS + 0] = 0;
-            str->picture[(pos.y * W + pos.x)*CHANNELS + 1] = 255;
-            str->picture[(pos.y * W + pos.x)*CHANNELS + 2] = 0;
+            str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0] = 0;
+            str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1] = 255;
+            str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2] = 0;
 
             if(pos.y < H && pos.y > 0 && pos.x < W && pos.x)
             {
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +3] = 255;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 +3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 +3] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 +3] = 0;
 
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -3] = 255;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 -3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 -3] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 -3] = 0;
 
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS] = 255;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS] = 0;
 
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS] = 255;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS] = 0;
 
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS-3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS-3] = 255;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS-3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS-3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS-3] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS-3] = 0;
 
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS+3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS+3] = 255;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS+3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS+3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS+3] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS+3] = 0;
 
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS+3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS+3] = 255;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS+3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS+3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS+3] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS+3] = 0;
 
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS-3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS-3] = 255;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS-3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS-3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS-3] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS-3] = 0;
 
             }
         }
         if(color == 'R')
         {
-            str->picture[(pos.y * W + pos.x)*CHANNELS + 0] = 0;
-            str->picture[(pos.y * W + pos.x)*CHANNELS + 1] = 0;
-            str->picture[(pos.y * W + pos.x)*CHANNELS + 2] = 255;
+            str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0] = 0;
+            str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1] = 0;
+            str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2] = 255;
 
             if(pos.y < H && pos.y > 0 && pos.x < W && pos.x)
             {
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +3] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 +3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 +3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 +3] = 255;
 
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -3] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 -3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 -3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 -3] = 255;
 
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS] = 255;
 
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS] = 255;
 
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS-3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS-3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS-3] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS-3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS-3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS-3] = 255;
 
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS+3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS+3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS+3] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS+3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS+3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS+3] = 255;
 
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS+3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS+3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS+3] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 +W*CHANNELS+3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 +W*CHANNELS+3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 +W*CHANNELS+3] = 255;
 
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS-3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS-3] = 0;
-                str->picture[(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS-3] = 255;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 0 -W*CHANNELS-3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 1 -W*CHANNELS-3] = 0;
+                str->picture[block][(pos.y * W + pos.x)*CHANNELS + 2 -W*CHANNELS-3] = 255;
 
             }
         }
@@ -167,6 +171,7 @@ struct Draws
 std::vector<Draws> drawing;
 std::vector<Option> options;
 //uint8_t drawing[W*H*CHANNELS];
+
 
 int main( int argc, char** argv ) {
 
@@ -197,9 +202,11 @@ int main( int argc, char** argv ) {
    Option option;
    bool drawing_empty = true;
 
+   std::ofstream file("WynikNormal_B.txt");
+
    while(true)
    {
-
+       auto start = std::chrono::high_resolution_clock::now();
        wait_for_signal(msgid, AtoB,'Z');
        wait_for_signal(msgid, CtoB,'Z');
 
@@ -212,7 +219,6 @@ int main( int argc, char** argv ) {
            {
                options[options.size()-1].pos.x = mouse.x;
                options[options.size()-1].pos.y = mouse.y;
-           }
 
            if(options[options.size()-1].val == 20)
            {
@@ -241,6 +247,7 @@ int main( int argc, char** argv ) {
                drawing.push_back(draws);
                drawing_empty = false;
            }
+           }
        }
 
        if(msgrcv(msgid, &msg, sizeof(msg), OPTION, IPC_NOWAIT) >= 0)
@@ -263,55 +270,60 @@ int main( int argc, char** argv ) {
 
        }
 
-       for(Option opt : options)
+       for(int block=0; block < BLOCK_SIZE; block++)
        {
-           if(opt.val == 2)
-            mirror_line_x(str, opt.pos.x, opt.pos.y);
-           else if(opt.val == 1)
-            mirror_line_y(str, opt.pos.x, opt.pos.y);
-           else if(opt.val == 3)
-                black_white(str);
-            else if(opt.val == 4)
-                color_saturation(str,MAX_SKALA_KOLOR - (int)(opt.pos.y / (float)H * (float)(2*MAX_SKALA_KOLOR)),'R');
-            else if(opt.val == 5)
-                color_saturation(str,MAX_SKALA_KOLOR - (int)(opt.pos.y / (float)H * (float)(2*MAX_SKALA_KOLOR)),'G');
-            else if(opt.val == 6)
-                color_saturation(str,MAX_SKALA_KOLOR - (int)(opt.pos.y / (float)H * (float)(2*MAX_SKALA_KOLOR)),'B');
-            else if(opt.val == 10)
-                set_image(str, opt.pos.x, opt.pos.y, 0);
-            else if(opt.val == 11)
-                set_image(str, opt.pos.x, opt.pos.y, 1);
-            else if(opt.val == 12)
-                set_image(str, opt.pos.x, opt.pos.y, 2);
-            else if(opt.val == 13)
-                set_image(str, opt.pos.x, opt.pos.y, 3);
+           for(Option opt : options)
+           {
+               if(opt.val == 2)
+                mirror_line_x(str, opt.pos.x, opt.pos.y,block);
+               else if(opt.val == 1)
+                mirror_line_y(str, opt.pos.x, opt.pos.y,block);
+               else if(opt.val == 3)
+                    black_white(str,block);
+                else if(opt.val == 4)
+                    color_saturation(str,MAX_SKALA_KOLOR - (int)(opt.pos.y / (float)H * (float)(2*MAX_SKALA_KOLOR)),'R',block);
+                else if(opt.val == 5)
+                    color_saturation(str,MAX_SKALA_KOLOR - (int)(opt.pos.y / (float)H * (float)(2*MAX_SKALA_KOLOR)),'G',block);
+                else if(opt.val == 6)
+                    color_saturation(str,MAX_SKALA_KOLOR - (int)(opt.pos.y / (float)H * (float)(2*MAX_SKALA_KOLOR)),'B',block);
+                else if(opt.val == 10)
+                    set_image(str, opt.pos.x, opt.pos.y, 0,block);
+                else if(opt.val == 11)
+                    set_image(str, opt.pos.x, opt.pos.y, 1,block);
+                else if(opt.val == 12)
+                    set_image(str, opt.pos.x, opt.pos.y, 2,block);
+                else if(opt.val == 13)
+                    set_image(str, opt.pos.x, opt.pos.y, 3,block);
 
 
-            if(!drawing_empty)
-            {
-
-                for( Draws d : drawing )
+                if(!drawing_empty)
                 {
-                    d.drawMark(str);
+
+                    for( Draws d : drawing )
+                    {
+                        d.drawMark(str,block);
+                    }
+
                 }
-
             }
+           }
 
-       }
-       send_signal(msgid,BtoA,'Z');
-       send_signal(msgid,BtoC,'Z');
+           send_signal(msgid,BtoC,'Z');
+           if(check_if_exit(msgid,CLOSE_ALL))
+           {
+               send_signal(msgid,CLOSE_A,'Z');
+               send_signal(msgid,CLOSE_C,'Z');
+               break;
+           }
 
-       if(check_if_exit(msgid,CLOSE_ALL))
-       {
-           send_signal(msgid,CLOSE_A,'Z');
-           send_signal(msgid,CLOSE_C,'Z');
-           break;
+        auto finish = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed = finish - start;
+        file << elapsed.count() << std::endl;
        }
-   }
     return 0;
 }
 
-void mirror_line_y(memory* str, int x_pos, int y_pos)
+void mirror_line_y(memory* str, int x_pos, int y_pos,int block)
 {
     cv::Mat image;
     image.create(H,W,CV_8UC3);
@@ -335,9 +347,9 @@ void mirror_line_y(memory* str, int x_pos, int y_pos)
             new_y = 2 * y_pos - i;
 
             if( new_y < image.rows && new_y >= 0 ){
-                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0] = str->picture[new_y*image.cols*CHANNELS + j*CHANNELS + 0] ;
-                 str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1] = str->picture[new_y*image.cols*CHANNELS + j*CHANNELS + 1]; // G
-                 str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2] = str->picture[new_y*image.cols*CHANNELS + j*CHANNELS + 2];
+                str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 0] = str->picture[block][new_y*image.cols*CHANNELS + j*CHANNELS + 0] ;
+                 str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 1] = str->picture[block][new_y*image.cols*CHANNELS + j*CHANNELS + 1]; // G
+                 str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 2] = str->picture[block][new_y*image.cols*CHANNELS + j*CHANNELS + 2];
             }
 
         }
@@ -345,7 +357,7 @@ void mirror_line_y(memory* str, int x_pos, int y_pos)
 }
 
 
-void mirror_line_x(memory* str, int x_pos, int y_pos)
+void mirror_line_x(memory* str, int x_pos, int y_pos, int block)
 {
     cv::Mat image;
     image.create(H,W,CV_8UC3);
@@ -370,16 +382,16 @@ void mirror_line_x(memory* str, int x_pos, int y_pos)
             new_x = 2 * x_pos - j;
 
             if( new_x < image.cols && new_x >= 0 ){
-                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0] = str->picture[i*image.cols*CHANNELS + new_x*CHANNELS + 0];
-                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1] = str->picture[i*image.cols*CHANNELS + new_x*CHANNELS + 1];  // G
-                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2] = str->picture[i*image.cols*CHANNELS + new_x*CHANNELS + 2];
+                str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 0] = str->picture[block][i*image.cols*CHANNELS + new_x*CHANNELS + 0];
+                str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 1] = str->picture[block][i*image.cols*CHANNELS + new_x*CHANNELS + 1];  // G
+                str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 2] = str->picture[block][i*image.cols*CHANNELS + new_x*CHANNELS + 2];
             }
         }
 
     }
 }
 
-void black_white(memory* str)
+void black_white(memory* str, int block)
 {
     cv::Mat image;
     image.create(H,W,CV_8UC3);
@@ -391,10 +403,10 @@ void black_white(memory* str)
     {
         for(int j = 0; j < image.cols; j++)
         {
-            grey = 0.11 * str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0] + 0.59 * str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1] + 0.3 * str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2];
-            str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0] = grey;
-            str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1] = grey;
-            str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2] = grey;
+            grey = 0.11 * str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 0] + 0.59 * str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 1] + 0.3 * str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 2];
+            str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 0] = grey;
+            str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 1] = grey;
+            str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 2] = grey;
         }
     }
 }
@@ -415,7 +427,7 @@ uint8_t less_than_255 ( int color ){
     }
 }
 
-void color_saturation (memory* str, int precentage, char color)
+void color_saturation (memory* str, int precentage, char color,int block)
 {
     cv::Mat image;
     image.create(H,W,CV_8UC3);
@@ -427,15 +439,15 @@ void color_saturation (memory* str, int precentage, char color)
         for( int j = 0; j < image.cols; j++)
         {
             if(color == 'B')
-                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0] = less_than_255((int)(str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0]) + precentage);
+                str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 0] = less_than_255((int)(str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 0]) + precentage);
             else if (color == 'G')
-                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1] = less_than_255((int)(str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1]) + precentage);  // G
+                str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 1] = less_than_255((int)(str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 1]) + precentage);  // G
             else if (color == 'R')
-                str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2] = less_than_255((int)(str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2]) + precentage );
+                str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 2] = less_than_255((int)(str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 2]) + precentage );
         }
     }
 }
-void set_image(memory* str, int x_pos, int y_pos, int type)
+void set_image(memory* str, int x_pos, int y_pos, int type,int block)
 {
     cv::Mat image;
     image.create(H,W,CV_8UC3);
@@ -479,9 +491,9 @@ void set_image(memory* str, int x_pos, int y_pos, int type)
                 pixelG = pixelPtr[photo_y*photo.cols*chann + photo_x*chann + 1];
                 pixelR = pixelPtr[photo_y*photo.cols*chann + photo_x*chann + 2];
                 if( !(pixelB == 255 && pixelG == 255 && pixelR == 255)){
-                    str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0] = pixelB;
-                    str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1] = pixelG;  // G
-                    str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2] = pixelR;
+                    str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 0] = pixelB;
+                    str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 1] = pixelG;  // G
+                    str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 2] = pixelR;
                 }
             }
             ++photo_x;

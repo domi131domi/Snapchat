@@ -26,10 +26,9 @@ int main( int argc, char** argv ) {
         std::cout << "Nie udalo sie utworzyc kolejki" << std::endl;
         exit(1);
     }
-
+    
     //Tworzenie pamieci dzielonej
-    key_t key_M = ftok(KEYM,65);
-
+    key_t key_M = ftok(KEYM,66);
     int shmid = shmget(key_M,sizeof(memory),PERMS | IPC_CREAT);
     if (shmid == -1) {
       perror("Nie udalo sie utworzyc pamieci dzielonej");
