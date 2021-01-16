@@ -1,6 +1,6 @@
 #define PERMS 0666
 #define KEYQ "ID_KOLEJKA2"
-#define KEYM "ID_PAMIEC69aaba"
+#define KEYM "ID_PAMIEC696aa"
 #define W 1280
 #define H 720
 #define CHANNELS 3
@@ -9,13 +9,14 @@
 #define CLOSE_C 17
 #define MOUSE_POS 19
 #define AtoB 1
-#define BtoA 2
+#define CtoA 2
 #define CtoB 3
 #define BtoC 4
 #define LICZBA_BLOKOW 1
 #define OPTION 20
 #define MAX_SKALA_KOLOR 255
-#define BLOCK_SIZE 1
+#define BLOCK_SIZE 4
+#define DURATION 0.001
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/videoio/videoio.hpp>
@@ -47,14 +48,12 @@ void send_signal(int msgid, int mesg_type, char letter)
     msgsnd(msgid, &msg, sizeof(msg), 0);
 }
 
-void wait_for_signal(int msgid, int mesg_type, char letter)
+char wait_for_signal(int msgid, int mesg_type)
 {
     msg_buffer msg;
     msg.data = 0;
-    while(msg.data != letter)
-    {
-        msgrcv(msgid, &msg, sizeof(msg), mesg_type, 0);
-    }
+    msgrcv(msgid, &msg, sizeof(msg), mesg_type, 0);
+    return msg.data;
 }
 
 bool check_if_exit(int msgid, int mesg_type)

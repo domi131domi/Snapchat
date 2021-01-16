@@ -172,8 +172,13 @@ std::vector<Draws> drawing;
 std::vector<Option> options;
 //uint8_t drawing[W*H*CHANNELS];
 
+cpu_set_t  mask;
 
 int main( int argc, char** argv ) {
+
+    CPU_ZERO(&mask);
+    CPU_SET(9, &mask);
+    int result = sched_setaffinity(0, sizeof(mask), &mask);
 
     //podpiecie sie do kolejki
     key_t key = ftok(KEYQ, 65);
@@ -206,10 +211,10 @@ int main( int argc, char** argv ) {
 
    while(true)
    {
+       for(int block=0; block < BLOCK_SIZE; block++)
+       {
        auto start = std::chrono::high_resolution_clock::now();
-       wait_for_signal(msgid, AtoB,'Z');
-       wait_for_signal(msgid, CtoB,'Z');
-
+       wait_for_signal(msgid, AtoB);
 
        if(msgrcv(msgid, &mouse_msg, sizeof(mouse_msg), MOUSE_POS, IPC_NOWAIT) >= 0)
        {
@@ -270,8 +275,7 @@ int main( int argc, char** argv ) {
 
        }
 
-       for(int block=0; block < BLOCK_SIZE; block++)
-       {
+
            for(Option opt : options)
            {
                if(opt.val == 2)
@@ -306,9 +310,9 @@ int main( int argc, char** argv ) {
 
                 }
             }
-           }
 
            send_signal(msgid,BtoC,'Z');
+           //std::cout << "Przygotowalem" << block << std::endl;
            if(check_if_exit(msgid,CLOSE_ALL))
            {
                send_signal(msgid,CLOSE_A,'Z');
@@ -319,6 +323,7 @@ int main( int argc, char** argv ) {
         auto finish = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = finish - start;
         file << elapsed.count() << std::endl;
+        }
        }
     return 0;
 }

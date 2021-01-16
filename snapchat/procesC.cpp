@@ -102,10 +102,20 @@ void load_option()
     }
 }
 
-uint8_t temp[BLOCK_SIZE][H*W*CHANNELS];
+uint8_t temp[H*W*CHANNELS];
+
+cpu_set_t  mask;
+int diff = 0;
+std::chrono::duration<double> elapsed;
+double elapsed_d = DURATION;
+auto now = std::chrono::high_resolution_clock::now();
+auto lastImg = std::chrono::high_resolution_clock::now();
 
 int main( int argc, char** argv ) {
 
+    CPU_ZERO(&mask);
+    CPU_SET(11, &mask);
+    int result = sched_setaffinity(0, sizeof(mask), &mask);
 
     //podpiecie sie do kolejki
     key_t key = ftok(KEYQ, 65);
@@ -137,7 +147,9 @@ int main( int argc, char** argv ) {
    uint8_t* pixelPtr = (uint8_t*)image.data;
    memory* str = (memory*) shmat(shmid,NULL,0);
    std::ofstream file("WynikNormal_C.txt");
-   send_signal(msgid,CtoB,'Z');
+   int block = 0;
+   wait_for_signal(msgid, BtoC);
+   diff++;
    while(working)
    {
        auto start = std::chrono::high_resolution_clock::now();
@@ -161,11 +173,26 @@ int main( int argc, char** argv ) {
           new_option = false;
       }
 
-      for(int block = 0; block < BLOCK_SIZE; block++)
-      {
+
        if(working)
        {
-       wait_for_signal(msgid,BtoC,'Z');
+        if(check_if_exit(msgid, BtoC)){
+            diff++;
+        }
+
+       now = std::chrono::high_resolution_clock::now();
+       elapsed = now - lastImg;
+       elapsed_d = elapsed.count();
+       while( elapsed_d < DURATION )
+       {
+           now = std::chrono::high_resolution_clock::now();
+           elapsed = now - lastImg;
+           elapsed_d = elapsed.count();
+       }
+
+       if(diff > 0)
+       {
+
        for(int i = 0; i < image.rows; i++)
        {
            for(int j = 0; j < image.cols; j++)
@@ -173,32 +200,42 @@ int main( int argc, char** argv ) {
                 //pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 0] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 0];    // B
                 //pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 1] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 1];    // G
                 //pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 2] = str->picture[i*image.cols*CHANNELS + j*CHANNELS + 2];    // R
-                temp[block][i*image.cols*CHANNELS + j*CHANNELS + 0] = str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 0];
-                temp[block][i*image.cols*CHANNELS + j*CHANNELS + 1] = str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 1];
-                temp[block][i*image.cols*CHANNELS + j*CHANNELS + 2] = str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 2];
+                temp[i*image.cols*CHANNELS + j*CHANNELS + 0] = str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 0];
+                temp[i*image.cols*CHANNELS + j*CHANNELS + 1] = str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 1];
+                temp[i*image.cols*CHANNELS + j*CHANNELS + 2] = str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 2];
             }
         }
-        send_signal(msgid,CtoB,'Z');
-        send_signal(msgid,BtoA,'Z');
+        block++;
+        if(block >= BLOCK_SIZE)
+            block = 0;
+        diff--;
+        send_signal(msgid,CtoA,'Z');
+        }
         if(check_if_exit(msgid,CLOSE_C))
         {
             working = false;
         }
-        for(int block = 0; block < BLOCK_SIZE; block++)
-        {
             for(int i = 0; i < image.rows; i++)
             {
                 for(int j = 0; j < image.cols; j++)
                  {
-                     pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 0] = temp[block][i*image.cols*CHANNELS + j*CHANNELS + 0];    // B
-                     pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 1] = temp[block][i*image.cols*CHANNELS + j*CHANNELS + 1];    // G
-                     pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 2] = temp[block][i*image.cols*CHANNELS + j*CHANNELS + 2];    // R
+                     pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 0] = temp[i*image.cols*CHANNELS + j*CHANNELS + 0];    // B
+                     pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 1] = temp[i*image.cols*CHANNELS + j*CHANNELS + 1];    // G
+                     pixelPtr[i*image.cols*CHANNELS + j*CHANNELS + 2] = temp[i*image.cols*CHANNELS + j*CHANNELS + 2];    // R
                  }
              }
-            cv::imshow("Snapchat", image);
-            cv::waitKey(1);
-        }
-        }
+
+
+             elapsed_d = 0;
+             while( elapsed_d < DURATION )
+             {
+                 cv::imshow("Snapchat", image);
+                 cv::waitKey(1);
+                 now = std::chrono::high_resolution_clock::now();
+                 elapsed = now - lastImg;
+                 elapsed_d = elapsed.count();
+             }
+             lastImg = std::chrono::high_resolution_clock::now();
         }
         auto finish = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = finish - start;
