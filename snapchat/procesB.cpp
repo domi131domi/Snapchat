@@ -177,7 +177,7 @@ cpu_set_t  mask;
 int main( int argc, char** argv ) {
 
     CPU_ZERO(&mask);
-    CPU_SET(9, &mask);
+    CPU_SET(10, &mask);
     int result = sched_setaffinity(0, sizeof(mask), &mask);
 
     //podpiecie sie do kolejki
@@ -207,7 +207,6 @@ int main( int argc, char** argv ) {
    Option option;
    bool drawing_empty = true;
 
-   std::ofstream file("WynikNormal_B.txt");
 
    while(true)
    {
@@ -215,7 +214,6 @@ int main( int argc, char** argv ) {
        {
        auto start = std::chrono::high_resolution_clock::now();
        wait_for_signal(msgid, AtoB);
-
        if(msgrcv(msgid, &mouse_msg, sizeof(mouse_msg), MOUSE_POS, IPC_NOWAIT) >= 0)
        {
             mouse.x = mouse_msg.x;
@@ -312,7 +310,6 @@ int main( int argc, char** argv ) {
             }
 
            send_signal(msgid,BtoC,'Z');
-           //std::cout << "Przygotowalem" << block << std::endl;
            if(check_if_exit(msgid,CLOSE_ALL))
            {
                send_signal(msgid,CLOSE_A,'Z');
@@ -320,9 +317,6 @@ int main( int argc, char** argv ) {
                break;
            }
 
-        auto finish = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> elapsed = finish - start;
-        file << elapsed.count() << std::endl;
         }
        }
     return 0;

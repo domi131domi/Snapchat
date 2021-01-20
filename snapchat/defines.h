@@ -1,6 +1,6 @@
 #define PERMS 0666
-#define KEYQ "ID_KOLEJKA2"
-#define KEYM "ID_PAMIEC696aa"
+#define KEYQ "ID_KOLEJKgA2bb"
+#define KEYM "ID_PAMIEC6g9bb6aa"
 #define W 1280
 #define H 720
 #define CHANNELS 3
@@ -12,10 +12,9 @@
 #define CtoA 2
 #define CtoB 3
 #define BtoC 4
-#define LICZBA_BLOKOW 1
 #define OPTION 20
 #define MAX_SKALA_KOLOR 255
-#define BLOCK_SIZE 4
+#define BLOCK_SIZE 2
 #define DURATION 0.001
 
 #include <opencv2/imgcodecs.hpp>

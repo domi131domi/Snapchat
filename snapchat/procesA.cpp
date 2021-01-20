@@ -11,13 +11,18 @@
 #include <sys/shm.h>
 #include "defines.h"
 #include <chrono>
+#include <ctime>
+#include <fstream>
 
 
 using namespace std;
 
 cpu_set_t  mask;
 
+std::ofstream file("Wyslania.txt");
+
 int main( int argc, char** argv ) {
+
 
     CPU_ZERO(&mask);
     CPU_SET(10, &mask);
@@ -104,7 +109,6 @@ int main( int argc, char** argv ) {
             }
             if(diff == 0)
             {
-                std::cout << "Czekam" << diff << std::endl;
                 wait_for_signal(msgid, CtoA);
                 diff++;
             }
@@ -121,6 +125,7 @@ int main( int argc, char** argv ) {
             lastImg = std::chrono::high_resolution_clock::now();
 
             cap.read(image);
+
 
             pixelPtr = (uint8_t*)image.data;
 

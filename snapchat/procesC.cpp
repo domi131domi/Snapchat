@@ -113,10 +113,6 @@ auto lastImg = std::chrono::high_resolution_clock::now();
 
 int main( int argc, char** argv ) {
 
-    CPU_ZERO(&mask);
-    CPU_SET(11, &mask);
-    int result = sched_setaffinity(0, sizeof(mask), &mask);
-
     //podpiecie sie do kolejki
     key_t key = ftok(KEYQ, 65);
 
@@ -146,7 +142,6 @@ int main( int argc, char** argv ) {
 
    uint8_t* pixelPtr = (uint8_t*)image.data;
    memory* str = (memory*) shmat(shmid,NULL,0);
-   std::ofstream file("WynikNormal_C.txt");
    int block = 0;
    wait_for_signal(msgid, BtoC);
    diff++;
@@ -205,12 +200,16 @@ int main( int argc, char** argv ) {
                 temp[i*image.cols*CHANNELS + j*CHANNELS + 2] = str->picture[block][i*image.cols*CHANNELS + j*CHANNELS + 2];
             }
         }
+
         block++;
         if(block >= BLOCK_SIZE)
             block = 0;
         diff--;
         send_signal(msgid,CtoA,'Z');
+
         }
+
+
         if(check_if_exit(msgid,CLOSE_C))
         {
             working = false;
@@ -239,7 +238,6 @@ int main( int argc, char** argv ) {
         }
         auto finish = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = finish - start;
-        file << elapsed.count() << std::endl;
     }
 
     cv::destroyAllWindows();
